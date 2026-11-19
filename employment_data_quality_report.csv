@@ -1,0 +1,13 @@
+,0
+Original rows,4287
+Original columns,41
+Countries in original dataset,172
+Original missing employment values,74
+Original duplicate rows,0
+USA rows after filtering,25
+USA missing values after cleaning,0
+USA duplicate rows after cleaning,0
+First year,2000
+Last year,2024
+Employment indicator,Off-Farm Employment Share
+Employment unit,Percentage
