@@ -107,16 +107,30 @@ During that period, the index of food CPI increased by about 54% and the off-far
 
 ## 6. Individual Contributions
 
-Each team member adds and commits their own summary below.
+Contribution summaries from each team member:
 
 ### Ranveer Ganna
 In relation to the current milestone, I created the integration phase and began the exploratory analysis phase. The integration phase is captured in [`integrate_data.py`](integrate_data.py), which transforms the monthly CPI data to annual averages for full years and harmonizes the three datasets. It ensures that `year` is a unique key in all sources and then joins the three datasets on year on a one-to-one basis to produce [`integrated_us_annual.csv`](integrated_us_annual.csv) from 2000 to 2021. The same code produces a post-integration quality report on the issues of completeness, consistency, accuracy, and timeliness; it tests whether the average CPI for food in 2015 is equal to the base year of 100. In addition to that, I wrote [`integrated_eda.py`](integrated_eda.py), which calculates correlations with agrifood emissions and generates the indexed trend chart. Lastly, I prepared this status report and the revised timeline and made sure both scripts can be run using a freshly cloned copy of the repository.
 
 ### Lauren Peng
-*[Lauren to add and commit]*
+In the role of the project coordinator, I created our GitHub repo, defined roles and timelines for the team, and added the raw data and initial project plan. In the current milestone, I was assigned to work on the Emissions Totals dataset (FAO_EMSTOT) from the World Bank Data360.
+
+The dataset has been profiled and includes 12,639 annual observations, spanning over 237 areas and covering the period from 1961 to 2021. There are no missing values; all the observations have the status "Normal value". During my review of the areas, I discovered that the data included both individual countries and aggregated regions (North America, South Asia, and World), which would be counted twice if considered as individual countries. Therefore, I included an IS_AGGREGATE flag that allows separating 183 aggregated rows from the rest, and exported the cleaned output as FAO_EMSTOT_cleaned.csv for integration.
+
+I also generated a descriptive view (FAO_EMSTOT_EDA.png) depicting the world total over time, top emitters in 2021, value distribution, and biggest variations since 1990. There are two facts that are important for our quality assessment. On one hand, the world total almost doubles between 1989 and 1990 (from 6.9 to 14.2 Gt CO2eq), suggesting that there is a change in what is being accounted for in the source since 1990 rather than an increase in emissions. On the other hand, the total of individual countries is not equal to the total World aggregate. Our analysis of US data uses the period from 2000 to 2021 and is therefore not affected by the 1990 gap, but we will document both as consistency limitations of the dataset.
 
 ### Vanisha Janaki
-*[Vanisha to add and commit]*
+For this milestone, I focused on inspecting and cleaning the Employment in Agrifood System dataset (AFS.csv) from World Bank Data360. The original dataset contained 4,287 observations from 172 countries covering 2000–2024. I filtered it to US observations only, since our project focuses on the United States.
+
+During inspection, I found that the dataset contained 25 annual observations for the US, and that the available employment indicator, Off-Farm Employment Share, is measured as a percentage. The US subset had no missing values or duplicate records; the full dataset had 74 missing employment values across other countries.
+
+I created a Python notebook to document this process: examining column names and data types, checking for missing values and duplicates, filtering the data to the project's needs, and standardizing data types and syntax. I exported the cleaned dataset as a CSV file for integration with the other datasets.
+
+One challenge was that the dataset only reports employment as an Off-Farm Employment Share percentage, with no separate On-Farm percentage, which we will need to consider when forming conclusions.
 
 ### Kevin Ting
-*[Kevin to add and commit]*
+I used a Python notebook to test and clean the Consumer Price Index data, then converted it into a script for easier reuse. The dataset was already fairly clean, but some columns held the same value in every row.
+
+I dropped 29 columns because they had the same value for every row, and 7 more that were not relevant to our analysis (such as OBS_STATUS, which marked the existence of missing values). The remaining columns are iso3, country, year, month, cpi_food, cpi_general, food_inflation_pct, partial_year, and hyperinflation_flag. food_inflation_pct is missing for the first recorded year (2000), since it is a year-over-year statistic that needs two years of data; I consider this a fair trade-off.
+
+I then exported the data as a CSV file to support the integration step.
