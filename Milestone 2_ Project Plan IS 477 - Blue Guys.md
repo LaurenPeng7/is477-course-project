@@ -39,13 +39,13 @@ Data Cleaning
 * Check for missing data, clean null values (Lauren, Vanisha)  
 * Standardize formatting (Kevin, Ranveer)
 
-**11/08:**  
+**11/22:**  
 Integrating Data
 
 * Combine data (Lauren, Vanisha)  
 * Reformat data for analysis (Kevin, Ranveer)
 
-**11/22:**  
+**11/30:**  
 Data Analysis
 
 * Find key metrics (Lauren, Vanisha)  
