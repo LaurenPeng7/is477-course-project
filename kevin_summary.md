@@ -1,0 +1,5 @@
+I used a python notebook to test and clean the ConsumerPriceIndex data. I uploaded it in the form of a script for easier reuse. This dataset was really quite clean already, so there was not much work to be done on this front. There were still some issues, such as some columns essentially just having the same data for every single row.
+
+I ended up dropping 29 columns initially due to it having the same values for every row. I dropped an additional 7 columns that were irrelevant to the data (such as OBS_status which pointed out the existence of missing values). This left me with these columns: iso3, country, year, month, cpi_food, cpi_general, food_inflation_pct, partial_year, hyperinflation_flag. One note is that food_inflation_pct will still have missing values for each of the first year recorded (2000), since it is a statistic that requires two years. I consider this a fair trade off for the values.
+
+I then exported the data as a csv file, which will help us integrate things in the following step.
