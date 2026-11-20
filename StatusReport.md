@@ -6,7 +6,7 @@
 
 ## 1. Summary of Progress
 
-All three datasets have been acquired, profiled, and cleaned, and a first version of the integrated dataset now exists. The integration joins the three cleaned sources on country (USA) and calendar year, producing one row per year for **2000–2021 (22 years)**. A post-integration quality check and a first exploratory chart have also been produced. The remaining work is mainly about turning these separate pieces into a reproducible, documented pipeline: an acquisition script with SHA-256 checks, script-based cleaning for every dataset, an orchestrating workflow, and the required metadata and licensing files.
+All three data sources have been obtained, described and cleaned and a first integrated data source now exists. This integration links the three cleaned sources on the basis of country (USA) and year and results in one observation per year between 2000 and 2021 (22 years). A post-integration quality assessment and a first exploration graph have been created as well. The remaining task is primarily that of putting together all of these individual components into an integrated, documented workflow: acquisition script with SHA-256 check, cleaning script for each dataset, workflow orchestration and necessary metadata and licensing documents.
 
 ## 2. Task Updates
 
@@ -20,21 +20,21 @@ The three datasets were downloaded from the World Bank Data360 portal and commit
 | Employment in Agrifood Systems (WB_AFS) | [`AFS.csv`](AFS.csv) | [Data360 WB_AFS](https://data360.worldbank.org/en/dataset/WB_AFS?country=USA) | Annual, 172 countries | 2000–2024 |
 | Emissions Totals (FAO_EMSTOT) | [`FAO_EMSTOT.csv`](FAO_EMSTOT.csv) | [Data360 FAO_EMSTOT](https://data360.worldbank.org/en/dataset/FAO_EMSTOT?country=USA) | Annual, 237 areas | 1961–2021 |
 
-The CPI file is about 86 MB uncompressed, above GitHub's 50 MB limit, so it is stored zipped. The downloads were done by hand; a scripted download with SHA-256 integrity checks is still to be written (see Section 3).
+The CPI file is about 86 MB without compression and thus exceeds GitHub’s size limit of 50 MB; it is kept zipped. The download was performed manually, but a scripted download with SHA-256 check still needs to be created (see Section 3).
 
 ### 2.2 Data profiling and cleaning — *complete for all three datasets*
 
-**Employment (Vanisha).** [`employment_cleaning.ipynb`](employment_cleaning.ipynb) profiles the raw file (4,287 rows, 41 columns, 172 countries) and finds 74 missing employment values globally but none for the US. It checks for duplicate rows and duplicate country–indicator–year combinations, filters to the United States (25 annual rows), keeps six relevant columns with readable names, and standardizes data types. Outputs: [`employment_cleaned.csv`](employment_cleaned.csv), [`employment_data_quality_report.csv`](employment_data_quality_report.csv), and [`employment_trend.png`](employment_trend.png).
+**Employment (Vanisha).** [`employment_cleaning.ipynb`](employment_cleaning.ipynb) profiles the raw dataset (4,287 rows, 41 columns, 172 countries) and discovers 74 missing employment values worldwide, but there are no missing values for the US. The script looks for duplicate rows and duplicate country–indicator–year combinations, filters data on the United States (25 annual rows), leaves only six columns with clear names and standardizes data types. Results: [`employment_cleaned.csv`](employment_cleaned.csv), [`employment_data_quality_report.csv`](employment_data_quality_report.csv), and [`employment_trend.png`](employment_trend.png).
 
-**Consumer prices (Kevin).** [`FAO_CP_cleaning.py`](FAO_CP_cleaning.py) reads the CSV directly from the zip (ignoring a `__MACOSX` entry), drops columns that hold the same value in every row, and renames the three indicators to `cpi_general`, `cpi_food`, and `food_inflation_pct`. It then pivots the data from long to wide (one row per country–month), removes rows where all three indicators are empty, and adds flags for the partial year 2026 and for hyperinflation (>100%). Output: [`FAO_CP_cleaned.csv`](FAO_CP_cleaned.csv), with 64,492 rows.
+**Consumer prices (Kevin).** [`FAO_CP_cleaning.py`](FAO_CP_cleaning.py) reads the CSV file straight from the zip file (ignores the `__MACOSX` folder inside the zip), drops the columns where all values are the same in each row, and renames three indicators as `cpi_general`, `cpi_food`, and `food_inflation_pct`. The dataset is pivoted from long to wide format (one row per country–month), and the rows where all three indicators are missing are dropped. In addition, flags are added for the partial year of 2026 and hyperinflation (>100%). Result: [`FAO_CP_cleaned.csv`](FAO_CP_cleaned.csv) (64,492 rows).
 
-**Emissions (Lauren).** [`FAO_EMSTOT_cleaned.csv`](FAO_EMSTOT_cleaned.csv) keeps all 12,639 observations and adds an `IS_AGGREGATE` flag. That flag separates regional aggregates (North America, South Asia, World; 183 rows) from individual countries, so aggregates cannot be mistaken for countries during integration. The profiling found no missing values, and every observation has status "Normal value". An EDA chart is in [`FAO_EMSTOT_EDA.png`](FAO_EMSTOT_EDA.png).
+**Emissions (Lauren).** [`FAO_EMSTOT_cleaned.csv`](FAO_EMSTOT_cleaned.csv) retains all 12,639 rows and creates an `IS_AGGREGATE` flag to distinguish aggregates (North America, South Asia, World; 183 rows) from individual countries, thus making sure that aggregates won't be confused with countries when integrating data. There were no missing values identified by profiling, and the status of each value is "Normal value". The chart from EDA is placed in [`FAO_EMSTOT_EDA.png`](FAO_EMSTOT_EDA.png).
 
 ### 2.3 Data integration — *first version complete*
 
 [`integrate_data.py`](integrate_data.py) builds the integrated dataset in five steps:
 
-1. **Monthly to annual.** It filters CPI to the US and aggregates months to calendar-year means. Years without all 12 months are dropped so a partial year (2026: January–March only) cannot distort an annual value.
+1. **Monthly to annual.** It restricts CPI to the US only and averages the months into calendar-year means. It drops years with an incomplete set of months, so that an incomplete year like 2026 (January–March only) won't affect the annual value.
 2. **Standardize schemas.** It renames the key and value columns in each source to a shared schema: `year`, `cpi_food`, `cpi_general`, `food_inflation_pct`, `offfarm_employment_share_pct`, and `agrifood_ghg_kt_co2eq`.
 3. **Validate keys.** It confirms that `year` is unique in every source before joining, and fails loudly if not.
 4. **Join.** It inner-joins all three on `year` with pandas `validate="one_to_one"`.
@@ -44,14 +44,14 @@ Outputs: [`integrated_us_annual.csv`](integrated_us_annual.csv) and [`integratio
 
 **Post-integration quality results:**
 
-- **Completeness:** 22 of 22 years in 2000–2021 are present, with no gaps. There is one null: `food_inflation_pct` for 2000, because it is a year-over-year rate and needs a prior year.
+- **Completeness:** 22 out of 22 years in the 2000–2021 period are present, so there are no missing years. There is only one null: `food_inflation_pct` for 2000, since it is a year-over-year rate and requires the previous year's value.
 - **Consistency:** No duplicate years. Each source contributes exactly one row per year.
-- **Accuracy:** Employment shares fall within 0–100%, and all emissions values are positive. The 2015 mean of the food CPI is 100.0, matching the dataset's stated base year (2015 = 100), which is a useful sanity check on the monthly-to-annual aggregation.
-- **Timeliness:** The integrated range is limited by the emissions data, which ends in 2021. The CPI and employment data extend to 2025 and 2024 respectively.
+- **Accuracy:** The employment shares are within the 0–100% interval, and emissions values are all positive. The mean of the food CPI in 2015 is 100.0, which agrees with 2015 being the base year (2015 = 100) according to the dataset description.
+- **Timeliness:** The integration time span is restricted by the data available on emissions, as it is up until 2021. CPI and employment figures go up to 2025 and 2024 correspondingly.
 
 ### 2.4 Exploratory analysis — *started*
 
-[`integrated_eda.py`](integrated_eda.py) computes Pearson and Spearman correlations between each variable and agrifood emissions and saves them to [`integrated_correlations.csv`](integrated_correlations.csv). It also plots indexed trends (2000 = 100) in [`integrated_trends.png`](integrated_trends.png).
+The script [`integrated_eda.py`](integrated_eda.py) calculates Pearson and Spearman correlation coefficients between each of the variables and agrifood emissions, saves them in [`integrated_correlations.csv`](integrated_correlations.csv) and produces an indexed trends graph (2000 = 100) as [`integrated_trends.png`](integrated_trends.png).
 
 ![Indexed US trends](integrated_trends.png)
 
@@ -63,7 +63,7 @@ Early results show only weak year-to-year associations with emissions:
 | Food CPI | 0.09 | 0.12 |
 | Off-farm employment share | 0.05 | 0.08 |
 
-Over the period, the food CPI rose about 54% and the off-farm employment share fell about 15%. Emissions stayed roughly flat, dipping to about 90% of their 2000 level around 2012 before recovering. With only 22 annual observations, these results are preliminary. The analysis phase will look at year-over-year changes and lagged relationships instead of levels alone.
+During that period, the index of food CPI increased by about 54% and the off-farm employment share went down by about 15%. At the same time, emissions stayed almost the same, falling to around 90% of the value of the year 2000 in 2012 before recovering. With such a small sample of 22 annual observations, this is quite a preliminary result. The analysis phase will look at changes in yearly figures and lagged dependencies.
 
 ## 3. Updated Timeline
 
@@ -86,12 +86,12 @@ Over the period, the food CPI rose about 54% and the off-farm employment share f
 
 ## 4. Changes to the Project Plan
 
-- **Timeline pushed back.** The original dates for cleaning (11/01) and integration (11/08) slipped because of team members' schedules. Cleaning and a first integration were completed on 11/19. More of the remaining work is now planned for Thanksgiving break, and the plan has been updated to match.
-- **Analysis period fixed at 2000–2021.** This is the overlap of all three datasets: CPI and employment begin in 2000, and emissions end in 2021.
+- **Timeline pushed back.** Cleaning was originally scheduled for 11/01 and integration for 11/08, but due to team members' schedules these were delayed until 11/19. A greater part of the remaining work is now planned to be done during Thanksgiving break, and the plan has been updated to match.
+- **Analysis period fixed at 2000–2021.** This is the intersection of all three data sets, where the CPI and Employment data sets start in 2000 while the Emissions data set ends in 2021.
 - **Monthly-to-annual rule defined.** Annual CPI values are calendar-year means of complete years only.
-- **Employment indicator clarified.** The employment dataset only provides the off-farm employment share, not a separate on-farm measure, so the research question uses off-farm share as its employment variable.
-- **New tasks added for course requirements.** The plan now explicitly includes the acquisition script with checksums, the workflow orchestrator, and the metadata, licensing, and reproducibility deliverables.
-- **Response to Milestone 2.** After the project plan milestone, we revised the plan in [`Milestone 2_ Project Plan IS 477 - Blue Guys.md`](Milestone%202_%20Project%20Plan%20IS%20477%20-%20Blue%20Guys.md) to reflect the new timeline. We also added the tasks above for the course requirements the original plan did not yet cover: the acquisition script, workflow orchestration, quality assessment across all four dimensions, and metadata and licensing.
+- **Employment indicator clarified.** The employment data set does not have an on-farm employment percentage; it just gives the off-farm employment percentage, which is used as the employment variable in our research question.
+- **New tasks added for course requirements.** The acquisition script with checksums, the workflow orchestrator, and the metadata, licensing and reproducibility deliverables have now been included explicitly in the plan.
+- **Response to Milestone 2.** After the Project Plan milestone, we made revisions to the plan in [`Milestone 2_ Project Plan IS 477 - Blue Guys.md`](Milestone%202_%20Project%20Plan%20IS%20477%20-%20Blue%20Guys.md) with a view to the new timeline. We have also added tasks for what the course requirements demanded but were missing in the original plan: acquisition script, workflow orchestrator, QA on all four dimensions, and metadata and licensing.
 
 ## 5. Challenges and How We Are Addressing Them
 
@@ -110,7 +110,7 @@ Over the period, the food CPI rose about 54% and the off-farm employment share f
 Each team member adds and commits their own summary below.
 
 ### Ranveer Ganna
-For this milestone I built the integration step and started the exploratory analysis. I wrote [`integrate_data.py`](integrate_data.py), which converts the monthly CPI data to annual means for complete years and puts all three cleaned datasets into a common schema. It checks that `year` is a unique key in every source, then joins the three datasets one-to-one on year. The result is [`integrated_us_annual.csv`](integrated_us_annual.csv), covering 2000–2021. The same script produces a post-integration quality report covering completeness, consistency, accuracy, and timeliness, including a check that the 2015 food CPI average equals the base value of 100. I also wrote [`integrated_eda.py`](integrated_eda.py), which computes correlations with agrifood emissions and produces the indexed trend chart. Finally, I drafted this status report and the updated timeline.
+In relation to the current milestone, I created the integration phase and began the exploratory analysis phase. The integration phase is captured in [`integrate_data.py`](integrate_data.py), which transforms the monthly CPI data to annual averages for full years and harmonizes the three datasets. It ensures that `year` is a unique key in all sources and then joins the three datasets on year on a one-to-one basis to produce [`integrated_us_annual.csv`](integrated_us_annual.csv) from 2000 to 2021. The same code produces a post-integration quality report on the issues of completeness, consistency, accuracy, and timeliness; it tests whether the average CPI for food in 2015 is equal to the base year of 100. In addition to that, I wrote [`integrated_eda.py`](integrated_eda.py), which calculates correlations with agrifood emissions and generates the indexed trend chart. Lastly, I prepared this status report and the revised timeline and made sure both scripts can be run using a freshly cloned copy of the repository.
 
 ### Lauren Peng
 *[Lauren to add and commit]*
