@@ -87,20 +87,28 @@ Contribution summaries from each team member:
 With respect to the current milestone, I developed the integration phase and started the exploratory analysis phase. The integration phase is implemented in the file [`integrate_data.py`](integrate_data.py), where monthly CPI is converted to annual means for complete years and all three datasets are aligned. It makes sure that `year` is a unique identifier in all datasets and integrates the three datasets on year one-to-one to get [`integrated_us_annual.csv`](integrated_us_annual.csv) for the period 2000–2021. The very same script produces a quality report after integration for the problems of completeness, consistency, accuracy, and timeliness and checks that the average CPI of food in 2015 is equal to the base year of 100. Additionally, I wrote [`integrated_eda.py`](integrated_eda.py) for calculating correlation with agrifood emissions and producing the indexed trend chart. Finally, I prepared this status report and the updated timeline and ensured that both scripts can be run with a fresh clone of the repository.
 
 ### Lauren Peng
-As a part of the project coordinator task, I initiated our GitHub repository, set the roles and timeline for the team, and also added the raw data and initial project plan. At the present milestone, my responsibility is to work on the dataset called Emissions Totals (FAO_EMSTOT) of the World Bank Data360.
+For this milestone, I cleaned the FAO agrifood-system emissions dataset (FAO_EMSTOT) and did the exploratory data analysis.
 
-This dataset has been profiled, and it consists of 12,639 annual observations over 237 areas and years ranging from 1961 to 2021. No missing values are present, as all the observations have the "Normal value" status. Upon checking the areas, I realized that the data contains not only individual countries but also aggregated regions like North America, South Asia, and World, which would be double-counted as individual countries. Therefore, I decided to introduce an IS_AGGREGATE flag that will separate 183 aggregated records from others, and save the resulting output as FAO_EMSTOT_cleaned.csv.
+#### Data cleaning
+- Checked the raw file (12,639 rows, 37 columns) for missing values and duplicates and found none.
+- Added an `IS_AGGREGATE` column to separate regional and world aggregates from individual countries.
+- Saved the result as `FAO_EMSTOT_cleaned.csv`.
 
-Also created was the descriptive visualization (FAO_EMSTOT_EDA.png) showing the world total over time, top emitters for 2021, distribution of values, and largest differences since 1990. There are two key facts that are critical for assessing the quality of our data. First of all, the world total increases almost twice between 1989 and 1990 (from 6.9 to 14.2 Gt CO2eq), implying that something changes in the accounting of source starting from 1990. However, on the other hand, the total of the individual countries does not add up to the total World aggregate. We use the period from 2000 to 2021 to analyze US data and, hence, this issue does not affect us, but it will be noted.
+#### Exploratory data analysis
+- Made a four-panel overview figure (`FAO_EMSTOT_EDA.png`).
+- Found a jump in the world total between 1989 and 1990, likely from a change in country coverage.
+- Identified the top emitters in 2021 (China, Brazil, India, US).
+- Found a strongly right-skewed distribution, so a log scale is needed.
+- Found the largest increases (China, India) and decreases (Indonesia, Brazil) since 1990.
 
 ### Vanisha Janaki
-In this milestone, I concentrated my efforts on investigating and cleaning the dataset Employment in Agrifood System (AFS.csv) by World Bank Data360. In the original dataset, there were 4,287 observations for 172 countries from 2000 to 2024. After investigation, I kept only the US observations in it because our project focuses on the United States.
+For this milestone, I focused on inspecting and cleaning the Employment in Agrifood System (AFS.csv) from World Bank Data360. The original dataset contained 4287 observations from across 172 countries covering the years 2000-2024. I filtered the dataset to only contain US observations, since our project is focusing specifically on the United States.
 
-While investigating the dataset, I found out that there were 25 annual observations for the US and the employment indicator used, Off-Farm Employment Share, is presented in percents. There are no missing values and duplicates in the dataset of the USA; in the original one, there were 74 missing employment observations.
+During the inspection and exploration process, I saw that the dataset contained 25 annual observations for the US and that the available employment indicator, Off-Farm Employment Share, was measured as a percentage. There were no missing values or duplicate records in the US subsection, while the original dataset contained 74 missing employment values for global observations.
 
-To show the process of investigation and cleaning, I made a Python notebook with such steps as analysis of the dataset, data type standardization and cleaning. I have exported the cleaned dataset in the form of the CSV file.
+I created a Python notebook to document this process, including examining column names and data types, checking for missing values and duplicates, filtering the data to suit our project’s needs, and standardizing data types and syntax. I exported the cleaned dataset as a CSV file to prepare it for integration with the other datasets.
 
-One problem with the dataset is that the Off-Farm Employment Share is reported but there is no figure on the On-Farm Employment Share.
+One challenge I ran into was that the dataset only indicates employment through Off-Farm Employment Share percentage, not a separate On-Farm percentage, which we’ll have to consider when forming a conclusion.
 
 ### Kevin Ting
 A Python notebook was created to analyze and clean the Consumer Price Index data. Then the notebook was converted to a script for reuse. The data was in relatively good condition, however some of the columns had the same value throughout all the rows.
