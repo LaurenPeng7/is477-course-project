@@ -1,0 +1,4 @@
+variable,pearson_r,spearman_rho,n_years
+food_inflation_pct,-0.151,-0.183,21
+cpi_food,0.091,0.123,22
+offfarm_employment_share_pct,0.05,0.078,22

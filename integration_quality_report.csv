@@ -1,0 +1,12 @@
+check,result
+cpi_years_available,2000-2025 (26)
+employment_years_available,2000-2024 (25)
+emissions_years_available,1961-2021 (61)
+integrated_rows,22
+integrated_year_range,2000-2021
+missing_years_in_range,none
+duplicate_years,0
+null_values_total,1
+employment_share_within_0_100,True
+emissions_all_positive,True
+cpi_2015_mean_food_index,100.0
